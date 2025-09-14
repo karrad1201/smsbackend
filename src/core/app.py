@@ -1,14 +1,16 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, APIRouter
 from src.core.logging_config import get_logger
 import time
 from importlib.metadata import version
 
 class Application():
-    def __init__(self):
+    def __init__(self, lifespan):
         self.app = FastAPI(
             title="FastAPI REST Template",
             description="A FastAPI REST template",
+            lifespan=lifespan,
             version=version("restfastapitemplate"),
+            redoc_url=None
         )
         self.logger = get_logger('Application')
         self._add_middlewares()

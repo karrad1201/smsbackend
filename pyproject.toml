@@ -16,10 +16,14 @@ dependencies = [
     "fastapi>=0.95.0",
     "uvicorn>=0.21.0",
     "pydantic>=2.0.0",
+    "aiomysql",
+    "sqlalchemy>=2.0.0",
+    "python-dotenv"
 ]
 
 
 [project.optional-dependencies]
 dev = [
     "pytest[asyncio]>=6.0",
+    "aiosqlite"
 ]
