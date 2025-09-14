@@ -23,6 +23,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
           pip install -e .
+        env:
+          PYTHONPATH: "${{ github.workspace }}/src"
 
       - name: Run tests
         run: pytest tests/ -v
