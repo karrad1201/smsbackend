@@ -1,4 +1,0 @@
-core
-logs
-main
-presentation
