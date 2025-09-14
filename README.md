@@ -27,7 +27,6 @@ FastApi запускается на 4 воркерах Uvicorn
 ├── Dockerfile
 ├── pyproject.toml
 ├── README.md
-├── tree.py
 ├── logs/
 │   ├── app.log
 ├── src/
