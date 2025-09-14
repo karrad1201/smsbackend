@@ -1,0 +1,71 @@
+2025-09-14 15:15:27,111 - __main__ - INFO - Application started
+2025-09-14 15:16:54,150 - src.core.app - INFO - Routers included
+2025-09-14 15:17:15,520 - Application - INFO - Routers included
+2025-09-14 15:20:47,483 - Application - INFO - Application initialized
+2025-09-14 15:20:47,483 - Application - INFO - Routers included
+2025-09-14 15:21:15,694 - Application - INFO - Request: GET http://localhost:8000/
+2025-09-14 15:21:15,695 - Application - INFO - Response: 404 completed in 0.0010s
+2025-09-14 15:21:18,082 - Application - INFO - Request: GET http://localhost:8000/
+2025-09-14 15:21:18,082 - Application - INFO - Response: 404 completed in 0.0000s
+2025-09-14 15:21:19,244 - Application - INFO - Request: GET http://localhost:8000/
+2025-09-14 15:21:19,245 - Application - INFO - Response: 404 completed in 0.0010s
+2025-09-14 15:21:19,993 - Application - INFO - Request: GET http://localhost:8000/
+2025-09-14 15:21:19,994 - Application - INFO - Response: 404 completed in 0.0010s
+2025-09-14 15:21:20,654 - Application - INFO - Request: GET http://localhost:8000/
+2025-09-14 15:21:20,654 - Application - INFO - Response: 404 completed in 0.0000s
+2025-09-14 15:23:26,266 - Application - INFO - Application initialized
+2025-09-14 15:23:26,266 - Application - INFO - Routers included
+2025-09-14 15:23:53,474 - Application - INFO - Application initialized
+2025-09-14 15:23:53,474 - Application - INFO - Routers included
+2025-09-14 15:30:54,345 - Application - INFO - Application initialized
+2025-09-14 15:30:54,345 - Application - INFO - Routers included
+2025-09-14 15:44:26,284 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:44:26,284 - Application - INFO - Routers included
+2025-09-14 15:44:57,151 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:44:57,151 - Application - INFO - Routers included
+2025-09-14 15:45:50,491 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:50,491 - Application - INFO - Routers included
+2025-09-14 15:45:51,156 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,156 - Application - INFO - Routers included
+2025-09-14 15:45:51,158 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,158 - Application - INFO - Routers included
+2025-09-14 15:45:51,159 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,159 - Application - INFO - Routers included
+2025-09-14 15:45:51,160 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,160 - Application - INFO - Routers included
+2025-09-14 15:45:51,182 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,182 - Application - INFO - Routers included
+2025-09-14 15:45:51,189 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,189 - Application - INFO - Routers included
+2025-09-14 15:45:51,292 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,292 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,293 - Application - INFO - Routers included
+2025-09-14 15:45:51,293 - Application - INFO - Routers included
+2025-09-14 15:45:51,293 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,293 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,293 - Application - INFO - Routers included
+2025-09-14 15:45:51,293 - Application - INFO - Routers included
+2025-09-14 15:45:51,295 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,295 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,295 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,295 - Application - INFO - Routers included
+2025-09-14 15:45:51,295 - Application - INFO - Routers included
+2025-09-14 15:45:51,295 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,296 - Application - INFO - Routers included
+2025-09-14 15:45:51,296 - Application - INFO - Routers included
+2025-09-14 15:45:51,296 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,296 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,296 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,296 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:45:51,296 - Application - INFO - Routers included
+2025-09-14 15:45:51,296 - Application - INFO - Routers included
+2025-09-14 15:45:51,296 - Application - INFO - Routers included
+2025-09-14 15:45:51,296 - Application - INFO - Routers included
+2025-09-14 15:47:49,617 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:47:49,617 - Application - INFO - Routers included
+2025-09-14 15:47:49,679 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:47:49,679 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:47:49,679 - Application - INFO - Routers included
+2025-09-14 15:47:49,679 - Application - INFO - Routers included
+2025-09-14 15:48:04,930 - Application - INFO - Application initialized. Version: 0.0.1
+2025-09-14 15:48:04,930 - Application - INFO - Routers included

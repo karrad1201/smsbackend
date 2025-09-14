@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/main.py
+src/core/app.py
+src/core/logging_config.py
+src/presentation/api/__init__.py
+src/restfastapitemplate.egg-info/PKG-INFO
+src/restfastapitemplate.egg-info/SOURCES.txt
+src/restfastapitemplate.egg-info/dependency_links.txt
+src/restfastapitemplate.egg-info/requires.txt
+src/restfastapitemplate.egg-info/top_level.txt
