@@ -9,10 +9,26 @@ if TESTING:
     engine = create_async_engine(DATABASE_URL, echo=True)
 else:
     from src.core.config import DATABASE_URL
-    engine = create_async_engine(DATABASE_URL, echo=True, pool_size=10, max_overflow=20, pool_timeout=30)
+
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=False,
+        pool_size=25,
+        max_overflow=50,
+        pool_timeout=60,
+        pool_recycle=1800,
+        pool_pre_ping=True
+    )
 
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def get_db_session() -> AsyncSession:
-    async with AsyncSessionLocal() as session:
+    session = AsyncSessionLocal()
+    try:
         yield session
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()

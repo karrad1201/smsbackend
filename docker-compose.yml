@@ -24,6 +24,11 @@ services:
 
   db:
     image: mariadb:10.6
+    command:
+      - --max_connections=1000
+      - --wait_timeout=600
+      - --interactive_timeout=600
+      - --max_connect_errors=1000000
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_USER: ${DB_USER}
