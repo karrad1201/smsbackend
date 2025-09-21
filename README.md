@@ -23,12 +23,21 @@ FastApi запускается на 4 воркерах Uvicorn
 Структура проекта:
 ```
 ├── .env
+├── alembic.ini
 ├── docker-compose.yml
 ├── Dockerfile
 ├── pyproject.toml
 ├── README.md
+├── tree.py
+├── alembic/
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+├── backups/
 ├── logs/
 │   ├── app.log
+├── scripts/
+│   ├── alembic_genetare.py
 ├── src/
 │   ├── main.py
 │   ├── core/
