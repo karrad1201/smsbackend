@@ -46,6 +46,7 @@ FastApi запускается на 4 воркерах Uvicorn
 │   │   │   │   ├── interface_user_repository.py
 │   │   ├── exceptions/
 │   │   │   ├── exceptions.py
+│   │   ├── middleware/
 │   ├── infrastructure/
 │   │   ├── database/
 │   │   │   ├── base.py
@@ -63,10 +64,19 @@ FastApi запускается на 4 воркерах Uvicorn
 │   │   │   ├── user/
 │   │   │   │   ├── user_router.py
 │   ├── services/
+│   │   ├── haser_service.py
+│   │   ├── JWT_service.py
 │   │   ├── user_service.py
 ├── tests/
 │   ├── conftest.py
+│   ├── pytest.ini
 │   ├── integration/
+│   │   ├── test_integeration_user_api.py
+│   │   ├── logs/
+│   │   │   ├── app.log
+│   ├── k6/
+│   │   ├── k6_user_users_test.js
+│   ├── unit/
 │   │   ├── test_user_api.py
 │   │   ├── logs/
 │   │   │   ├── app.log
