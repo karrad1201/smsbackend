@@ -6,6 +6,7 @@ class UserORM(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), index=True)
+    password_hash = Column(String(255))
 
 
 __all__ = ["UserORM"]
