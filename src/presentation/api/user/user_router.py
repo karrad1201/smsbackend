@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from src.core.di import get_user_service, get_jwt_service, get_current_user
-from src.core.domain.entity.user import UserCreate
+from src.core.domain.entity.user import UserCreate, UserPublic
 from src.core.logging_config import get_logger
 from src.core.exceptions.exceptions import AlredyExistsException
 
@@ -9,7 +9,7 @@ user_router = APIRouter(prefix="/user")
 logger = get_logger(__name__)
 
 @user_router.get("/users")
-async def get_users(user_service=Depends(get_user_service)):
+async def get_users(user_service=Depends(get_user_service)) -> list[UserPublic]:
     try:
         return await user_service.get_users()
     except Exception as e:

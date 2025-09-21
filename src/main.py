@@ -13,7 +13,9 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app):
     try:
-        await create_tables()
+        from src.infrastructure.database.init_db import sync_database
+        await sync_database()
+        logger.info("✅ Database connection established")
         yield
     except OperationalError as e:
         logger.error(f"Database error: {e}")
