@@ -33,5 +33,6 @@ dependencies = [
 dev = [
     "pytest[asyncio]>=6.0",
     "aiosqlite",
-    "httpx"
+    "httpx",
+    "pytest-asyncio"
 ]
