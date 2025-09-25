@@ -6,7 +6,7 @@ TESTING = os.getenv("TESTING", "0") == "1"
 if TESTING:
     from src.core.config import TEST_DATABASE_URL
     DATABASE_URL = TEST_DATABASE_URL
-    engine = create_async_engine(DATABASE_URL, echo=True)
+    engine = create_async_engine(DATABASE_URL)
 else:
     from src.core.config import DATABASE_URL
 

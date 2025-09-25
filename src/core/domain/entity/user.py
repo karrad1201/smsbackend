@@ -1,20 +1,35 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Optional
+from enum import Enum
 
+class UserRole(str, Enum):
+    USER = "user"
+    ADMIN = "admin"
 
-class UserBase(BaseModel):
+class User(BaseModel):
     id: int
-    name: str
+    user_name: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    balance: float
+    language: Optional[str] = None
+    discount_rate: float = 0.0
+    is_admin: bool = False
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
-
-class UserCreate(BaseModel):
-    name: str
-    password: str
-
-
-class UserPublic(UserBase):
     class Config:
         from_attributes = True
 
+class UserCreate(BaseModel):
+    user_name: str
+    password: str
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
-class UserPrivate(UserBase):
+class UserPrivate(User):
     password_hash: str
+    api_key: Optional[str] = None

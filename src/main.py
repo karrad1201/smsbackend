@@ -1,7 +1,6 @@
 from src.core.app import Application
 from src.presentation.api import routers
 from src.core.logging_config import setup_logging, get_logger
-from src.infrastructure.database.init_db import create_tables
 from contextlib import asynccontextmanager
 from sqlalchemy.exc import OperationalError
 import sys
