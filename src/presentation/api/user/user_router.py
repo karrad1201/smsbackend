@@ -13,7 +13,7 @@ from src.core.domain.dto.user_dto import (
 from src.core.domain.dto.response_dto import StandardResponse
 from src.core.domain.entity.user import User
 
-user_router = APIRouter(prefix="/user")
+user_router = APIRouter(prefix="/user", tags=["user"])
 logger = get_logger(__name__)
 
 
@@ -92,7 +92,12 @@ async def login_user(
 
         token = jwt_service.create_access_token(user.id)
         logger.info(f"User {login_dto.user_name} logged in, token generated for user_id: {user.id}")
-        return {'user': user, 'token': token}
+
+        return {
+            "token": token,
+            "user_id": user.id,
+            "user_name": user.user_name
+        }
 
     except HTTPException:
         raise

@@ -1,10 +1,13 @@
+# conftest.py (исправленные фикстуры)
 import asyncio
 import pytest
+import pytest_asyncio
 import os
 import sys
+from unittest.mock import patch, AsyncMock
+from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.core.config import Settings
 
 os.environ["TESTING"] = "1"
 
@@ -12,14 +15,14 @@ from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from httpx import AsyncClient
 
 from src.infrastructure.database.schemas import Base, UserORM, PaymentORM
 from src.main import app
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+engine = create_async_engine(TEST_DATABASE_URL, echo=True)
 TestingSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -28,17 +31,15 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
-
 @pytest.fixture(scope="session")
 def test_settings():
-    return Settings(
-        HELEKET_MERCHANT_ID="test_merchant",
-        HELEKET_API_KEY="test_api_key",
-        HELEKET_SECRET_KEY="test_secret_key",
-        BASE_URL="http://localhost:8000",
-        FRONTEND_URL="http://localhost:3000",
-    )
-
+    return {
+        "HELEKET_MERCHANT_ID": "test_merchant",
+        "HELEKET_API_KEY": "test_api_key",
+        "HELEKET_SECRET_KEY": "test_secret_key",
+        "BASE_URL": "http://localhost:8000",
+        "FRONTEND_URL": "http://localhost:3000",
+    }
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -47,20 +48,17 @@ def event_loop():
     yield loop
     loop.close()
 
-
-@pytest.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
     yield
-
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
-
-@pytest.fixture
-async def db_session():
+@pytest_asyncio.fixture
+async def async_db_session():
+    """Асинхронная сессия для async тестов"""
     async with TestingSessionLocal() as session:
         try:
             yield session
@@ -68,53 +66,155 @@ async def db_session():
             await session.rollback()
             await session.close()
 
-
-@pytest.fixture
-def client():
-    with TestClient(app) as c:
-        yield c
-
-
-@pytest.fixture(autouse=True)
-def override_settings(test_settings):
-    import src.core.config as config
-    original_settings = getattr(config, 'settings', None)
-    config.settings = test_settings
-    yield
-    if original_settings:
-        config.settings = original_settings
+@pytest_asyncio.fixture
+async def async_client():
+    """Асинхронный клиент для тестов"""
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        yield client
 
 
-@pytest.fixture
-async def test_users(db_session):
-    await db_session.execute(PaymentORM.__table__.delete())
-    await db_session.execute(UserORM.__table__.delete())
+@pytest_asyncio.fixture
+async def authenticated_client(async_db_session):
+    """Создает аутентифицированного асинхронного клиента"""
+    # Сначала загружаем тестовые данные
+    await load_test_data(async_db_session)
 
-    test_users = [
-        UserORM(
-            user_name="testuser1",
-            password_hash="hash1",
-            email="user1@test.com",
-            balance=100.0,
-            is_admin=False
-        ),
-        UserORM(
-            user_name="testuser2",
-            password_hash="hash2",
-            email="user2@test.com",
-            balance=50.0,
-            is_admin=False
+    # Создаем тестового пользователя
+    user = UserORM(
+        user_name="test_auth_user",
+        email="auth@test.com",
+        password_hash="hashed_test_password",
+        balance=1000.0
+    )
+    async_db_session.add(user)
+    await async_db_session.commit()
+    await async_db_session.refresh(user)
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        # Логинимся с моком
+        login_data = {
+            "user_name": "test_auth_user",
+            "password": "testpassword123"
+        }
+
+        # Правильный путь для мока HasherService
+        with patch('src.core.di.get_hasher_service') as mock_hasher:
+            mock_instance = AsyncMock()
+            mock_instance.verify.return_value = True
+            mock_hasher.return_value = mock_instance
+
+            response = await client.post("/user/login", json=login_data)
+
+        if response.status_code == 200:
+            response_data = response.json()
+            # Исправляем получение токена (структура ответа)
+            if 'token' in response_data:
+                token = response_data['token']
+                client.headers.update({"Authorization": f"Bearer {token}"})
+            elif 'user' in response_data and 'token' in response_data['user']:
+                token = response_data['user']['token']
+                client.headers.update({"Authorization": f"Bearer {token}"})
+            else:
+                print("Warning: Token not found in login response")
+
+        yield client
+
+async def load_test_data(async_db_session):
+    """Функция для загрузки тестовых данных"""
+    from src.infrastructure.database.schemas import (
+        ProviderRoutesORM, ProviderORM, ServiceReferenceORM,
+        CountryReferenceORM, OrderORM, StatusTypeORM
+    )
+
+    try:
+        # Очищаем таблицы в правильном порядке (с учетом foreign keys)
+        tables_to_clear = [OrderORM, PaymentORM, ProviderRoutesORM, ProviderORM,
+                           ServiceReferenceORM, CountryReferenceORM, StatusTypeORM, UserORM]
+
+        for table in tables_to_clear:
+            await async_db_session.execute(table.__table__.delete())
+
+        # Создаем статусы заказов
+        status_types = [
+            StatusTypeORM(id=1, code="PENDING", name_en="Pending", name_ru="В ожидании"),
+            StatusTypeORM(id=2, code="COMPLETED", name_en="Completed", name_ru="Завершен"),
+            StatusTypeORM(id=3, code="CANCELLED", name_en="Cancelled", name_ru="Отменен"),
+        ]
+
+        # Создаем тестовые сервисы
+        services = [
+            ServiceReferenceORM(code="telegram", name="Telegram", category="social",
+                                is_popular=True, is_active=True),
+            ServiceReferenceORM(code="whatsapp", name="WhatsApp", category="social",
+                                is_popular=True, is_active=True),
+        ]
+
+        # Создаем тестовые страны
+        countries = [
+            CountryReferenceORM(code="US", name_ru="США", name_en="USA",
+                                is_active=True, is_popular=True),
+            CountryReferenceORM(code="RU", name_ru="Россия", name_en="Russia",
+                                is_active=True, is_popular=True),
+        ]
+
+        # Создаем провайдера
+        provider = ProviderORM(
+            name="test_provider",
+            adapter_class="TestAdapter",
+            config={},
+            is_active=True,
+            display_name="Test Provider"
         )
-    ]
 
-    db_session.add_all(test_users)
-    await db_session.commit()
-    return test_users
+        # Создаем маршруты
+        provider_routes = [
+            ProviderRoutesORM(
+                provider=provider,
+                country_code="US",
+                service_code="telegram",
+                provider_country_code="US",
+                provider_service_code="tg",
+                cost_price=Decimal('5.0'),
+                client_price=Decimal('10.0'),
+                vip_client_price=Decimal('9.0'),
+                available_count=100,
+                is_active=True,
+                id=1
+            ),
+            ProviderRoutesORM(
+                provider=provider,
+                country_code="RU",
+                service_code="telegram",
+                provider_country_code="RU",
+                provider_service_code="tg",
+                cost_price=Decimal('4.0'),
+                client_price=Decimal('8.0'),
+                vip_client_price=Decimal('7.0'),
+                available_count=50,
+                is_active=True,
+                id=2
+            ),
+        ]
 
+        # Добавляем все в сессию
+        async_db_session.add_all(status_types + services + countries + [provider] + provider_routes)
+        await async_db_session.commit()
 
+        print("✅ Тестовые данные загружены")
+
+    except Exception as e:
+        print(f"❌ Ошибка загрузки тестовых данных: {e}")
+        await async_db_session.rollback()
+        raise
+
+@pytest_asyncio.fixture(autouse=True)
+async def auto_load_test_data(async_db_session):
+    """Автоматическая загрузка тестовых данных перед каждым тестом"""
+    await load_test_data(async_db_session)
+
+# Мок для платежной системы (синхронный, поэтому оставляем pytest.fixture)
 @pytest.fixture
 def mock_heleket_service():
-    from unittest.mock import AsyncMock
     mock_service = AsyncMock()
     mock_service.create_payment.return_value = {
         "state": 0,
@@ -126,69 +226,5 @@ def mock_heleket_service():
             "payer_currency": "USDT"
         }
     }
+    mock_service.check_payment_status.return_value = {"status": "paid"}
     return mock_service
-
-
-@pytest.fixture
-async def authenticated_client(client, db_session):
-    from src.infrastructure.database.schemas import UserORM
-    from src.services.haser_service import HasherService
-
-    hasher = HasherService()
-    test_user = UserORM(
-        user_name="test_auth_user",
-        password_hash=hasher.hash("testpassword123"),
-        email="auth@test.com",
-        balance=100.0
-    )
-
-    db_session.add(test_user)
-    await db_session.commit()
-    await db_session.refresh(test_user)
-
-    login_data = {
-        "user_name": "test_auth_user",
-        "password": "testpassword123"
-    }
-
-    login_response = client.post("/user/login", json=login_data)
-    if login_response.status_code == 200:
-        token = login_response.json()["token"]
-        client.headers.update({"Authorization": f"Bearer {token}"})
-
-    yield client
-
-    client.headers.pop("Authorization", None)
-
-
-@pytest.fixture
-async def admin_client(client, db_session):
-    from src.infrastructure.database.schemas import UserORM
-    from src.services.haser_service import HasherService
-
-    hasher = HasherService()
-    admin_user = UserORM(
-        user_name="test_admin",
-        password_hash=hasher.hash("adminpassword123"),
-        email="admin@test.com",
-        balance=0.0,
-        is_admin=True
-    )
-
-    db_session.add(admin_user)
-    await db_session.commit()
-    await db_session.refresh(admin_user)
-
-    login_data = {
-        "user_name": "test_admin",
-        "password": "adminpassword123"
-    }
-
-    login_response = client.post("/user/login", json=login_data)
-    if login_response.status_code == 200:
-        token = login_response.json()["token"]
-        client.headers.update({"Authorization": f"Bearer {token}"})
-
-    yield client
-
-    client.headers.pop("Authorization", None)

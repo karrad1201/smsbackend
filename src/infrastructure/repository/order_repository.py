@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, and_
+from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from datetime import datetime
 
@@ -18,7 +19,9 @@ class OrderRepository(IOrderRepository):
     async def get_by_id(self, id: int) -> Optional[Order]:
         try:
             result = await self.session.execute(
-                select(OrderORM).where(OrderORM.id == id)
+                select(OrderORM)
+                .options(selectinload(OrderORM.status))
+                .where(OrderORM.id == id)
             )
             order_orm = result.scalar_one_or_none()
 
@@ -34,6 +37,7 @@ class OrderRepository(IOrderRepository):
         try:
             result = await self.session.execute(
                 select(OrderORM)
+                .options(selectinload(OrderORM.status))
                 .where(OrderORM.user_id == user_id)
                 .order_by(OrderORM.created_at.desc())
                 .offset(skip)
@@ -58,6 +62,7 @@ class OrderRepository(IOrderRepository):
 
             result = await self.session.execute(
                 select(OrderORM)
+                .options(selectinload(OrderORM.status))
                 .where(OrderORM.status_id == status_id)
                 .order_by(OrderORM.created_at.desc())
                 .offset(skip)
@@ -82,6 +87,7 @@ class OrderRepository(IOrderRepository):
 
             query = (
                 select(OrderORM)
+                .options(selectinload(OrderORM.status))
                 .where(
                     and_(
                         OrderORM.user_id == user_id,
@@ -103,6 +109,7 @@ class OrderRepository(IOrderRepository):
         try:
             result = await self.session.execute(
                 select(OrderORM)
+                .options(selectinload(OrderORM.status))
                 .order_by(OrderORM.created_at.desc())
                 .offset(skip)
                 .limit(limit)
@@ -117,26 +124,33 @@ class OrderRepository(IOrderRepository):
     async def create(self, order_create: OrderCreate) -> Order:
         try:
             status_result = await self.session.execute(
-                select(StatusTypeORM.id).where(StatusTypeORM.code == OrderStatus.WAITING_CODE)
+                select(StatusTypeORM).where(StatusTypeORM.code == OrderStatus.WAITING_CODE)
             )
-            status_id = status_result.scalar_one()
+            status_orm = status_result.scalar_one()
 
             order_orm = OrderORM(
                 service=order_create.service,
                 country_code=order_create.country_code,
                 price=order_create.price,
                 provider_id=order_create.provider_id,
-                status_id=status_id,
-                provider_cost_price=order_create.provider_cost_price,
+                status_id=status_orm.id,
+                user_id=order_create.user_id,
+                client_ip=order_create.client_ip,
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow()
             )
 
             self.session.add(order_orm)
             await self.session.commit()
-            await self.session.refresh(order_orm)
 
-            return self._orm_to_entity(order_orm)
+            result = await self.session.execute(
+                select(OrderORM)
+                .options(selectinload(OrderORM.status))
+                .where(OrderORM.id == order_orm.id)
+            )
+            order_orm_with_relations = result.scalar_one()
+
+            return self._orm_to_entity(order_orm_with_relations)
         except Exception as e:
             await self.session.rollback()
             self.logger.error(f"Error creating order: {e}")
@@ -163,18 +177,22 @@ class OrderRepository(IOrderRepository):
             if order_update.status_id is not None:
                 update_data["status_id"] = order_update.status_id
 
-            result = await self.session.execute(
+            await self.session.execute(
                 update(OrderORM)
                 .where(OrderORM.id == id)
                 .values(**update_data)
-                .returning(OrderORM)
             )
+            await self.session.commit()
 
+            result = await self.session.execute(
+                select(OrderORM)
+                .options(selectinload(OrderORM.status))
+                .where(OrderORM.id == id)
+            )
             order_orm = result.scalar_one_or_none()
             if not order_orm:
                 return None
 
-            await self.session.commit()
             return self._orm_to_entity(order_orm)
         except Exception as e:
             await self.session.rollback()
@@ -200,18 +218,23 @@ class OrderRepository(IOrderRepository):
             if code is not None:
                 update_data["code"] = code
 
-            result = await self.session.execute(
+            await self.session.execute(
                 update(OrderORM)
                 .where(OrderORM.id == order_id)
                 .values(**update_data)
-                .returning(OrderORM)
             )
+            await self.session.commit()
 
+            # Перезагружаем заказ с отношениями
+            result = await self.session.execute(
+                select(OrderORM)
+                .options(selectinload(OrderORM.status))
+                .where(OrderORM.id == order_id)
+            )
             order_orm = result.scalar_one_or_none()
             if not order_orm:
                 return None
 
-            await self.session.commit()
             return self._orm_to_entity(order_orm)
         except Exception as e:
             await self.session.rollback()
@@ -261,6 +284,5 @@ class OrderRepository(IOrderRepository):
             status_id=order_orm.status_id,
             created_at=order_orm.created_at,
             updated_at=order_orm.updated_at,
-            provider_cost_price=float(order_orm.provider_cost_price) if order_orm.provider_cost_price else None,
             client_ip=order_orm.client_ip
         )

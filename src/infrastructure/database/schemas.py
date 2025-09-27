@@ -36,7 +36,7 @@ class UserORM(Base):
 class OrderORM(Base):
     __tablename__ = "history"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     number = Column(String(255))
     activ_id = Column(String(255))
     code = Column(String(255))
@@ -59,7 +59,7 @@ class OrderORM(Base):
 class StatusTypeORM(Base):
     __tablename__ = "status_types"
 
-    id = Column(SmallInteger, primary_key=True)
+    id = Column(SmallInteger, primary_key=True, autoincrement=True)
     code = Column(String(30), nullable=False, unique=True)
     name_en = Column(String(50), nullable=False)
     name_ru = Column(String(50))
@@ -73,7 +73,7 @@ class StatusTypeORM(Base):
 class PaymentORM(Base):
     __tablename__ = "payment_history"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     amount = Column(Float)
     cash_register = Column(String(255))
@@ -88,7 +88,7 @@ class PaymentORM(Base):
 class ServiceReferenceORM(Base):
     __tablename__ = "service_reference"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(10), nullable=False, unique=True, index=True)
     name = Column(String(255), nullable=False)
     category = Column(String(100))
@@ -103,7 +103,7 @@ class ServiceReferenceORM(Base):
 class CountryReferenceORM(Base):
     __tablename__ = "country_reference"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(10), nullable=False, unique=True, index=True)
     name_ru = Column(String(255), nullable=False)
     name_en = Column(String(255))
@@ -119,7 +119,7 @@ class CountryReferenceORM(Base):
 class ProviderRoutesORM(Base):
     __tablename__ = "provider_routes"
 
-    id = Column(BigInteger, primary_key=True, index=True)
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     provider_id = Column(Integer,ForeignKey("providers.id"), nullable=False)
     country_code = Column(String(10), nullable=False)
     service_code = Column(String(50), nullable=False)
@@ -154,10 +154,10 @@ class ProviderORM(Base):
     """ORM для существующей таблицы providers"""
     __tablename__ = "providers"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(50), nullable=False, unique=True)
     adapter_class = Column(String(100), nullable=False)
-    config = Column(JSONB, nullable=False)  # jsonb в PostgreSQL
+    config = Column(JSONB, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -180,7 +180,7 @@ class ProviderORM(Base):
 class ProviderBalanceSnapshotORM(Base):
     __tablename__ = "provider_balance_snapshots"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     snapshot_datetime = Column(DateTime(timezone=True), server_default=func.now())
     balance = Column(Float, nullable=False)
     provider_id = Column(Integer, ForeignKey("providers.id"))
@@ -191,7 +191,7 @@ class ProviderBalanceSnapshotORM(Base):
 class ProviderRouteStatsORM(Base):
     __tablename__ = "provider_route_stats"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     provider_id = Column(Integer,ForeignKey("providers.id"), nullable=False)
     country_code = Column(String(10), nullable=False)
     service_code = Column(String(50), nullable=False)
@@ -221,7 +221,7 @@ class ProviderRouteStatsORM(Base):
 class SystemConfigORM(Base):
     __tablename__ = "system_config"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(100), nullable=False)
     value = Column(JSONB, nullable=False)
     description = Column(Text)

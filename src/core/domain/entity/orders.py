@@ -37,6 +37,8 @@ class OrderCreate(BaseModel):
     country_code: str
     price: float
     provider_id: Optional[int] = None
+    user_id: Optional[int] = None
+    client_ip: Optional[str] = None
 
 class OrderUpdate(BaseModel):
     status: Optional[OrderStatus] = None

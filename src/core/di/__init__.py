@@ -28,7 +28,6 @@ async def get_current_user(
         token = authorization[7:]
         logger.info(f"Token extracted, length: {len(token)}")
 
-        # Проверяем токен перед извлечением user_id
         if not jwt_service.verify_token(token):
             logger.error("Token verification failed")
             raise HTTPException(status_code=401, detail="Invalid token")

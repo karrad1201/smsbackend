@@ -6,3 +6,5 @@ tree.py
 alembic/versions
 backups
 *dump*
+tests
+.github

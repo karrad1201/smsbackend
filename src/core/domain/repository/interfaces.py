@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Any
+from typing import List, Optional, Dict, Any
+from src.core.domain.entity.orders import Order, OrderCreate, OrderUpdate
+from src.core.domain.entity.service_price import ServicePrice
+
 
 
 class IRepository(ABC):
@@ -81,23 +84,47 @@ class IUserRepository(IRepository):
         pass
 
 
-class IOrderRepository(IRepository):
+class IOrderRepository(ABC):
     """Интерфейс репозитория заказов"""
 
     @abstractmethod
-    async def get_by_user_id(self, user_id: int, skip: int = 0, limit: int = 100) -> List[Any]:
+    async def get_by_id(self, id: int) -> Optional[Order]:
         pass
 
     @abstractmethod
-    async def get_by_status(self, status: str, skip: int = 0, limit: int = 100) -> List[Any]:
+    async def get_by_user_id(self, user_id: int, skip: int = 0, limit: int = 100) -> List[Order]:
         pass
 
     @abstractmethod
-    async def get_active_orders(self, user_id: int) -> List[Any]:
+    async def get_by_status(self, status: str, skip: int = 0, limit: int = 100) -> List[Order]:
         pass
 
     @abstractmethod
-    async def update_status(self, order_id: int, status: str, code: Optional[str] = None) -> Optional[Any]:
+    async def get_active_orders(self, user_id: int) -> List[Order]:
+        pass
+
+    @abstractmethod
+    async def get_all(self, skip: int = 0, limit: int = 100) -> List[Order]:
+        pass
+
+    @abstractmethod
+    async def create(self, order_create: OrderCreate) -> Order:
+        pass
+
+    @abstractmethod
+    async def update(self, id: int, order_update: OrderUpdate) -> Optional[Order]:
+        pass
+
+    @abstractmethod
+    async def update_status(self, order_id: int, status: str, code: Optional[str] = None) -> Optional[Order]:
+        pass
+
+    @abstractmethod
+    async def delete(self, id: int) -> bool:
+        pass
+
+    @abstractmethod
+    async def get_orders_count_by_user(self, user_id: int) -> int:
         pass
 
 
@@ -124,38 +151,40 @@ class IPaymentRepository(IRepository):
         pass
 
 
-class IPriceRepository:
-    """Интерфейс репозитория цен"""
-
+class IPriceRepository(ABC):
     @abstractmethod
-    async def get_service_catalog(self) -> List[Any]:
-        """Получить каталог услуг с ценами"""
+    async def get_service_catalog(self) -> List[ServicePrice]:
         pass
 
     @abstractmethod
-    async def get_price_for_service_country(self, service_code: str, country_code: str) -> Optional[Any]:
-        """Получить цену для конкретной комбинации сервис-страна"""
+    async def get_price_for_service_country(self, service_code: str, country_code: str) -> Optional[ServicePrice]:
         pass
 
     @abstractmethod
-    async def get_services_by_country(self, country_code: str) -> List[Any]:
-        """Получить услуги для конкретной страны"""
+    async def get_services_by_country(self, country_code: str) -> List[ServicePrice]:
         pass
 
     @abstractmethod
-    async def get_countries_by_service(self, service_code: str) -> List[Any]:
-        """Получить страны для конкретной услуги"""
+    async def get_countries_by_service(self, service_code: str) -> List[ServicePrice]:
         pass
 
     @abstractmethod
-    async def get_popular_services(self) -> List[Any]:
-        """Получить популярные услуги"""
+    async def get_popular_services(self) -> List[ServicePrice]:
         pass
 
     @abstractmethod
-    async def get_popular_countries(self) -> List[Any]:
-        """Получить популярные страны"""
+    async def get_popular_countries(self) -> List[ServicePrice]:
         pass
+
+    @abstractmethod
+    async def get_available_services_countries(self) -> Dict[str, Any]:
+        pass
+
+    @abstractmethod
+    async def get_detailed_prices_for_service_country(self, service_code: str, country_code: str) -> List[Any]:
+        pass
+
+
 
 
 class IServiceRepository(IRepository):

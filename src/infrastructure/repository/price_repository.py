@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, or_
+from sqlalchemy import select, func, and_, or_, case
+import os
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
 
@@ -21,7 +22,27 @@ class PriceRepository(IPriceRepository):
 
     async def get_service_catalog(self) -> List[ServicePrice]:
         try:
-            # Основной запрос для получения агрегированных цен
+            if os.environ.get("TESTING") == "1":
+                is_available_expr = func.MAX(
+                    case(
+                        (
+                            and_(
+                                ProviderRoutesORM.is_active == True,
+                                ProviderRoutesORM.available_count > 0
+                            ),
+                            1
+                        ),
+                        else_=0
+                    )
+                ).label('is_available')
+            else:
+                is_available_expr = func.bool_or(
+                    and_(
+                        ProviderRoutesORM.is_active == True,
+                        ProviderRoutesORM.available_count > 0
+                    )
+                ).label('is_available')
+
             subquery = (
                 select(
                     ProviderRoutesORM.service_code,
@@ -29,12 +50,7 @@ class PriceRepository(IPriceRepository):
                     func.min(ProviderRoutesORM.client_price).label('min_price'),
                     func.min(ProviderRoutesORM.vip_client_price).label('min_vip_price'),
                     func.max(ProviderRoutesORM.available_count).label('max_available'),
-                    func.bool_or(
-                        and_(
-                            ProviderRoutesORM.is_active == True,
-                            ProviderRoutesORM.available_count > 0
-                        )
-                    ).label('is_available')
+                    is_available_expr
                 )
                 .where(ProviderRoutesORM.is_active == True)
                 .group_by(
@@ -44,7 +60,6 @@ class PriceRepository(IPriceRepository):
                 .subquery()
             )
 
-            # Основной запрос с JOIN справочников для получения названий
             query = (
                 select(
                     subquery.c.service_code,
@@ -172,25 +187,39 @@ class PriceRepository(IPriceRepository):
 
     async def get_services_by_country(self, country_code: str) -> List[ServicePrice]:
         try:
+            if os.environ.get("TESTING") == "1":
+                # SQLite-совместимая версия
+                is_available_expr = func.MAX(
+                    case(
+                        (
+                            and_(
+                                ProviderRoutesORM.is_active == True,
+                                ProviderRoutesORM.available_count > 0
+                            ),
+                            1
+                        ),
+                        else_=0
+                    )
+                ).label('is_available')
+            else:
+                # PostgreSQL версия
+                is_available_expr = func.bool_or(
+                    and_(
+                        ProviderRoutesORM.is_active == True,
+                        ProviderRoutesORM.available_count > 0
+                    )
+                ).label('is_available')
+
             subquery = (
                 select(
                     ProviderRoutesORM.service_code,
                     ProviderRoutesORM.country_code,
                     func.min(ProviderRoutesORM.client_price).label('min_price'),
                     func.min(ProviderRoutesORM.vip_client_price).label('min_vip_price'),
-                    func.bool_or(
-                        and_(
-                            ProviderRoutesORM.is_active == True,
-                            ProviderRoutesORM.available_count > 0
-                        )
-                    ).label('is_available')
+                    func.max(ProviderRoutesORM.available_count).label('max_available'),
+                    is_available_expr
                 )
-                .where(
-                    and_(
-                        ProviderRoutesORM.country_code == country_code,
-                        ProviderRoutesORM.is_active == True
-                    )
-                )
+                .where(ProviderRoutesORM.is_active == True)
                 .group_by(
                     ProviderRoutesORM.service_code,
                     ProviderRoutesORM.country_code
@@ -247,25 +276,39 @@ class PriceRepository(IPriceRepository):
 
     async def get_countries_by_service(self, service_code: str) -> List[ServicePrice]:
         try:
+            if os.environ.get("TESTING") == "1":
+                # SQLite-совместимая версия
+                is_available_expr = func.MAX(
+                    case(
+                        (
+                            and_(
+                                ProviderRoutesORM.is_active == True,
+                                ProviderRoutesORM.available_count > 0
+                            ),
+                            1
+                        ),
+                        else_=0
+                    )
+                ).label('is_available')
+            else:
+                # PostgreSQL версия
+                is_available_expr = func.bool_or(
+                    and_(
+                        ProviderRoutesORM.is_active == True,
+                        ProviderRoutesORM.available_count > 0
+                    )
+                ).label('is_available')
+
             subquery = (
                 select(
                     ProviderRoutesORM.service_code,
                     ProviderRoutesORM.country_code,
                     func.min(ProviderRoutesORM.client_price).label('min_price'),
                     func.min(ProviderRoutesORM.vip_client_price).label('min_vip_price'),
-                    func.bool_or(
-                        and_(
-                            ProviderRoutesORM.is_active == True,
-                            ProviderRoutesORM.available_count > 0
-                        )
-                    ).label('is_available')
+                    func.max(ProviderRoutesORM.available_count).label('max_available'),
+                    is_available_expr
                 )
-                .where(
-                    and_(
-                        ProviderRoutesORM.service_code == service_code,
-                        ProviderRoutesORM.is_active == True
-                    )
-                )
+                .where(ProviderRoutesORM.is_active == True)
                 .group_by(
                     ProviderRoutesORM.service_code,
                     ProviderRoutesORM.country_code
@@ -322,18 +365,37 @@ class PriceRepository(IPriceRepository):
 
     async def get_popular_services(self) -> List[ServicePrice]:
         try:
+            if os.environ.get("TESTING") == "1":
+                # SQLite-совместимая версия
+                is_available_expr = func.MAX(
+                    case(
+                        (
+                            and_(
+                                ProviderRoutesORM.is_active == True,
+                                ProviderRoutesORM.available_count > 0
+                            ),
+                            1
+                        ),
+                        else_=0
+                    )
+                ).label('is_available')
+            else:
+                # PostgreSQL версия
+                is_available_expr = func.bool_or(
+                    and_(
+                        ProviderRoutesORM.is_active == True,
+                        ProviderRoutesORM.available_count > 0
+                    )
+                ).label('is_available')
+
             subquery = (
                 select(
                     ProviderRoutesORM.service_code,
                     ProviderRoutesORM.country_code,
                     func.min(ProviderRoutesORM.client_price).label('min_price'),
                     func.min(ProviderRoutesORM.vip_client_price).label('min_vip_price'),
-                    func.bool_or(
-                        and_(
-                            ProviderRoutesORM.is_active == True,
-                            ProviderRoutesORM.available_count > 0
-                        )
-                    ).label('is_available')
+                    func.max(ProviderRoutesORM.available_count).label('max_available'),
+                    is_available_expr
                 )
                 .where(ProviderRoutesORM.is_active == True)
                 .group_by(
@@ -400,18 +462,37 @@ class PriceRepository(IPriceRepository):
 
     async def get_popular_countries(self) -> List[ServicePrice]:
         try:
+            if os.environ.get("TESTING") == "1":
+                # SQLite-совместимая версия
+                is_available_expr = func.MAX(
+                    case(
+                        (
+                            and_(
+                                ProviderRoutesORM.is_active == True,
+                                ProviderRoutesORM.available_count > 0
+                            ),
+                            1
+                        ),
+                        else_=0
+                    )
+                ).label('is_available')
+            else:
+                # PostgreSQL версия
+                is_available_expr = func.bool_or(
+                    and_(
+                        ProviderRoutesORM.is_active == True,
+                        ProviderRoutesORM.available_count > 0
+                    )
+                ).label('is_available')
+
             subquery = (
                 select(
                     ProviderRoutesORM.service_code,
                     ProviderRoutesORM.country_code,
                     func.min(ProviderRoutesORM.client_price).label('min_price'),
                     func.min(ProviderRoutesORM.vip_client_price).label('min_vip_price'),
-                    func.bool_or(
-                        and_(
-                            ProviderRoutesORM.is_active == True,
-                            ProviderRoutesORM.available_count > 0
-                        )
-                    ).label('is_available')
+                    func.max(ProviderRoutesORM.available_count).label('max_available'),
+                    is_available_expr
                 )
                 .where(ProviderRoutesORM.is_active == True)
                 .group_by(

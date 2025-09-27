@@ -48,7 +48,7 @@ class UserService:
         hashed_password = self.hasher_service.hash(password)
         return await self.user_repo.update_password(user_id, hashed_password)
 
-    async def update_balance(self, user_id: int, amount: int):
+    async def update_balance(self, user_id: int, amount: float):
         return await self.user_repo.update_balance(user_id, amount)
 
     async def update_api_key(self, user_id: int, api_key: str):
