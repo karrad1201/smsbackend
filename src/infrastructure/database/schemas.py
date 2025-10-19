@@ -30,6 +30,11 @@ class UserORM(Base):
     is_admin = Column(Boolean, nullable=False, default=False)
     password_hash = Column(String(255), nullable=False)
 
+
+    is_verified = Column(Boolean, nullable=False, default=False)
+    is_banned = Column(Boolean, nullable=False, default=False)
+    client_note = Column(String(20))
+
     orders = relationship("OrderORM", back_populates="user")
     payments = relationship("PaymentORM", back_populates="user")
 
@@ -51,7 +56,6 @@ class OrderORM(Base):
     provider_id = Column(Integer, ForeignKey("providers.id"), index=True)
     client_ip = Column(INET)
 
-    # Relationships
     provider = relationship("ProviderORM", back_populates="orders")
     user = relationship("UserORM", back_populates="orders")
     status = relationship("StatusTypeORM", back_populates="orders")

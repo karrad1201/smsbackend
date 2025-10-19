@@ -14,6 +14,10 @@ class UserMapper:
             balance=user.balance,
             discount_rate=user.discount_rate,
             language=user.language,
+            # Новые поля
+            is_verified=user.is_verified,
+            is_banned=user.is_banned,
+            client_note=user.client_note,
             created_at=user.created_at
         )
 

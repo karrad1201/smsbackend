@@ -11,11 +11,19 @@ logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app):
+    order_service = None
     try:
         from src.infrastructure.database.init_db import sync_database
         await sync_database()
         logger.info("✅ Database connection established")
+
+        from src.core.di.service import get_order_service
+        order_service = get_order_service()
+        await order_service.start_background_tasks()
+        logger.info("✅ Background tasks started")
+
         yield
+
     except OperationalError as e:
         logger.error(f"Database error: {e}")
         yield
@@ -25,6 +33,9 @@ async def lifespan(app):
         yield
         sys.exit()
     finally:
+        if order_service:
+            await order_service.stop_background_tasks()
+            logger.info("✅ Background tasks stopped")
         logger.info("Database connection closed")
 
 

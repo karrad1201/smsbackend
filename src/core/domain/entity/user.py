@@ -17,8 +17,13 @@ class User(BaseModel):
     language: Optional[str] = None
     discount_rate: float = 0.0
     is_admin: bool = False
+
+    is_verified: bool = True
+    is_banned: bool = False
+    client_note: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    api_key: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -29,7 +34,7 @@ class UserCreate(BaseModel):
     email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    language: Optional[str] = None
 
 class UserPrivate(User):
     password_hash: str
-    api_key: Optional[str] = None

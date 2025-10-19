@@ -1,10 +1,21 @@
+# order_dto.py
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 from src.core.domain.entity.orders import OrderStatus
 
+class ExternalAPIResponse(BaseModel):
+    status_code: str
+    activationId: Optional[str] = None
+    phoneNumber: Optional[str] = None
+    priceCharged: Optional[float] = None
+    activationTime: Optional[str] = None
+    countryCode: Optional[str] = None
+    value: Optional[str] = None
+    code: Optional[str] = None
+
 class OrderDTO(BaseModel):
-    id: int
+    id: str
     service: str
     service_name: Optional[str] = None
     country_code: str
@@ -18,6 +29,12 @@ class OrderDTO(BaseModel):
     code: Optional[str] = None
     activ_id: Optional[str] = None
     updated_at: Optional[datetime] = None
+    external_status: Optional[str] = None
+    activation_time: Optional[str] = None
+    user_id: int
+
+    class Config:
+        from_attributes = True
 
 class OrderCreateDTO(BaseModel):
     service: str
@@ -33,3 +50,9 @@ class OrderListDTO(BaseModel):
     total: int
     page: int
     size: int
+
+class OrderPollResponse(BaseModel):
+    status: OrderStatus
+    code: Optional[str] = None
+    phone_number: Optional[str] = None
+    external_status: str

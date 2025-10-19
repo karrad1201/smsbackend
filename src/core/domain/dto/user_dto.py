@@ -11,6 +11,10 @@ class UserProfileDTO(BaseModel):
     balance: float
     discount_rate: float
     language: Optional[str]
+
+    is_verified: bool
+    is_banned: bool
+    client_note: Optional[str]
     created_at: datetime
 
 class UserCreateDTO(BaseModel):
@@ -21,7 +25,7 @@ class UserCreateDTO(BaseModel):
     last_name: Optional[str] = None
 
 class UserLoginDTO(BaseModel):
-    user_name: str
+    email: str
     password: str
 
 class UserBalanceDTO(BaseModel):
@@ -32,3 +36,7 @@ class UserUpdateDTO(BaseModel):
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
     language: Optional[str] = None
+
+    is_verified: Optional[bool] = None
+    is_banned: Optional[bool] = None
+    client_note: Optional[str] = None

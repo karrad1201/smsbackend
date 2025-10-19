@@ -8,7 +8,7 @@ router = APIRouter()
 logger = get_logger(__name__)
 
 
-@router.post("/webhooks/heleket")
+@router.post("/webhook/heleket")
 async def handle_heleket_webhook(
         request: Request,
         payment_service: PaymentService = Depends(get_payment_service)

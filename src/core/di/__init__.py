@@ -44,6 +44,10 @@ async def get_current_user(
             logger.error(f"User with id {user_id} not found")
             raise HTTPException(status_code=404, detail="User not found")
 
+        if user.is_banned:
+            logger.error(f"User {user.user_name} is banned")
+            raise HTTPException(status_code=403, detail="User is banned")
+
         logger.info(f"User authenticated: {user.user_name} (ID: {user.id})")
         return user
 

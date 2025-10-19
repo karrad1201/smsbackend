@@ -17,7 +17,7 @@ class Order(BaseModel):
     user_id: int
     provider_id: Optional[int] = None
     number: Optional[str] = None
-    activ_id: Optional[str] = None
+    activ_id: Optional[str] = None  # Это теперь activation_id из внешнего API
     code: Optional[str] = None
     service: str
     price: float
@@ -28,6 +28,7 @@ class Order(BaseModel):
     updated_at: Optional[datetime] = None
     provider_cost_price: Optional[float] = None
     client_ip: Optional[str] = None
+    external_status: Optional[str] = None
 
     class Config:
         from_attributes = True

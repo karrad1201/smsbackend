@@ -25,7 +25,9 @@ dependencies = [
     "alembic",
     "asyncpg",
     "httpx",
-    "python-multipart"
+    "python-multipart",
+    "aiohttp",
+    "websockets"
 ]
 
 

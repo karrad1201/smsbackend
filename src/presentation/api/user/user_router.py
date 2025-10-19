@@ -76,7 +76,7 @@ async def login_user(
         hasher_service=Depends(get_hasher_service)
 ):
     try:
-        user = await user_service.get_by_username(login_dto.user_name)
+        user = await user_service.get_by_email(login_dto.email)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -91,18 +91,19 @@ async def login_user(
             )
 
         token = jwt_service.create_access_token(user.id)
-        logger.info(f"User {login_dto.user_name} logged in, token generated for user_id: {user.id}")
+        logger.info(f"User {login_dto.email} logged in, token generated for user_id: {user.id}")
 
         return {
             "token": token,
             "user_id": user.id,
-            "user_name": user.user_name
+            "user_name": user.user_name,
+            "email": user.email
         }
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error logging in user {login_dto.user_name}: {e}")
+        logger.error(f"Error logging in user {login_dto.email}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"

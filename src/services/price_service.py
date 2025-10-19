@@ -87,3 +87,8 @@ class PriceService:
         return await self.price_repo.get_detailed_prices_for_service_country(
             service_code, country_code
         )
+
+
+
+
+

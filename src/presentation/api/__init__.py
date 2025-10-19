@@ -4,6 +4,7 @@ from src.presentation.api.payments.payment_router import router as payment_route
 from .user.user_router import user_router
 from .price.price_router import price_router
 from .orders.order_router import router as order_router
+from src.presentation.websocket_router import router as websocket_router
 
 routers = [
     health_router,
@@ -11,5 +12,6 @@ routers = [
     payment_router,
     webhooks_router,
     price_router,
-    order_router
+    order_router,
+    websocket_router
 ]

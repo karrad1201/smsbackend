@@ -109,6 +109,9 @@ class UserRepository(IUserRepository):
                 balance=0.0,
                 discount_rate=0.0,
                 is_admin=False,
+                is_verified=False,
+                is_banned=False,
+                client_note=None,
                 language=None,
                 api_key=None,
                 created_at=datetime.utcnow(),
@@ -277,6 +280,11 @@ class UserRepository(IUserRepository):
             language=user_orm.language,
             discount_rate=float(user_orm.discount_rate),
             is_admin=user_orm.is_admin,
+            # Новые поля
+            is_verified=user_orm.is_verified,
+            is_banned=user_orm.is_banned,
+            client_note=user_orm.client_note,
             created_at=user_orm.created_at,
-            updated_at=user_orm.updated_at
+            updated_at=user_orm.updated_at,
+            api_key=user_orm.api_key
         )

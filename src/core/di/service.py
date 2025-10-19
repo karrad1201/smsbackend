@@ -32,8 +32,11 @@ def get_payment_service(payment_repo=Depends(get_payment_repo)) -> PaymentServic
 def get_price_service(price_repo=Depends(get_price_repo)) -> PriceService:
     return PriceService(price_repo)
 
-def get_order_service(price_repo=Depends(get_price_repo), order_repo=Depends(get_order_repo), user_repo=Depends(get_user_repo)) -> OrderService:
-    return OrderService(price_repo=price_repo, order_repo=order_repo, user_repo=user_repo)
+def get_order_service(
+    price_repo= Depends(get_price_repo),
+    user_repo= Depends(get_user_repo)
+) -> OrderService:
+    return OrderService(price_repo, user_repo)
 
 __all__ = [
     "get_user_service",
