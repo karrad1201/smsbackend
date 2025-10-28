@@ -26,7 +26,7 @@ class Settings():
 
 
 settings = Settings(
-    HELEKET_MERCHANT_ID=os.getenv("HELEKET_MERCHANT_ID"),
-    HELEKET_API_KEY=os.getenv("HELEKET_API_KEY"),
+    HELEKET_MERCHANT_ID=os.getenv("HELEKET_MERCHANT_UUID"),  # Используем UUID из .env
+    HELEKET_API_KEY=os.getenv("HELEKET_API_KEY", ""),  # Пустая строка, если не установлена
     HELEKET_SECRET_KEY=os.getenv("HELEKET_SECRET_KEY")
 )

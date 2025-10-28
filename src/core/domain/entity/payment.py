@@ -12,6 +12,7 @@ class PaymentStatus(str, Enum):
 class PaymentBase(BaseModel):
     user_id: int
     amount: float
+    currency: str = "USD"  # Валюта платежа
     cash_register: Optional[str] = None
     invoice_id: Optional[str] = None
     status: PaymentStatus = PaymentStatus.PENDING

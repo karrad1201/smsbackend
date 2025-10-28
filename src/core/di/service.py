@@ -26,8 +26,11 @@ def get_jwt_service() -> JWTService:
 def get_heleket_service() -> HeleketService:
     return HeleketService()
 
-def get_payment_service(payment_repo=Depends(get_payment_repo)) -> PaymentService:
-    return PaymentService(payment_repo)
+def get_payment_service(
+    payment_repo=Depends(get_payment_repo),
+    user_repo=Depends(get_user_repo)
+) -> PaymentService:
+    return PaymentService(payment_repo, user_repo)
 
 def get_price_service(price_repo=Depends(get_price_repo)) -> PriceService:
     return PriceService(price_repo)

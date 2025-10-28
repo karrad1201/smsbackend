@@ -6,7 +6,12 @@ from pathlib import Path
 def setup_logging(log_level: str = "INFO", log_file: str = "app.log") -> None:
 
     log_path = Path("logs")
-    log_path.mkdir(exist_ok=True)
+    try:
+        log_path.mkdir(exist_ok=True)
+    except PermissionError:
+        # If we can't create logs directory, fall back to current directory
+        log_path = Path(".")
+        print("Warning: Could not create logs directory, using current directory for log file")
 
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',

@@ -10,25 +10,21 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - TESTING="0"
+      - HELEKET_MERCHANT_UUID=${HELEKET_MERCHANT_UUID}
+      - HELEKET_SECRET_KEY=${HELEKET_SECRET_KEY}
+      - HELEKET_API_KEY=${HELEKET_API_KEY:-}
+      - BASE_URL=${API_BASE}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TESTING=0
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - ./alembic:/app/alembic
     env_file:
       - .env
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
+    restart: unless-stopped
 
   db:
-    image: postgres:14
+    image: postgres:14-alpine
     environment:
       POSTGRES_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       POSTGRES_USER: ${DB_USER}
@@ -37,13 +33,14 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./alembic:/app/alembic
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
 volumes:
   postgres_data:

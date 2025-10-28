@@ -142,7 +142,6 @@ async def force_poll_status(
 ):
     """Принудительный опрос статуса"""
     try:
-        # Здесь можно добавить логику принудительного опроса внешнего API
         order = order_service.active_orders.get(order_id)
         if order:
             await websocket.send_json({
